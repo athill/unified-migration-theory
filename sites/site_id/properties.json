@@ -1,0 +1,8 @@
+{
+	"host": "example.com",
+	"port": 22,
+	"password": "password, if ommitted, you will be prompted. Looking into key-based auth",
+	"username": "username",
+	"remoteroot": "/full/path/to/remote/webroot",
+	"localroot":  "/full/path/to/local/webroot"
+}
