@@ -39,7 +39,8 @@ and assuming
 * as does ~/sites/[site-id]/properties.json
 * as does ~/sites/[site-id]/migrations/[migration-id]/def.txt
 
-Here's a sample ~/sites/[site-id]/properties.json:
+
+### ~/sites/[site-id]/properties.json:
 
 <pre>
 {
@@ -51,4 +52,11 @@ Here's a sample ~/sites/[site-id]/properties.json:
         "localroot":  "/full/path/to/local/webroot"
 }
 
+### ~/sites/[site-id]/migrations/[migration-id]/def.txt
+<pre>
+A  file/to/add.ext
+D  file/to/delete.ext
+M  file/to/modify.ext
 </pre>
+
+
