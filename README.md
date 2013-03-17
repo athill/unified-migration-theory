@@ -37,4 +37,18 @@ and assuming
 
 * ~/sites/[site-id]/migrations/[migration-id] exists
 * as does ~/sites/[site-id]/properties.json
-* as does * ~/sites/[site-id]/migrations/[migration-id]/def.txt
+* as does ~/sites/[site-id]/migrations/[migration-id]/def.txt
+
+Here's a sample ~/sites/[site-id]/properties.json:
+
+<code>
+{
+        "host": "example.com",
+        "port": 22,
+        "password": "password, if ommitted, you will be prompted (once I implement it). Looking into key-based auth",
+        "username": "username, may integrate into host. e.g., username@example.com",
+        "remoteroot": "/full/path/to/remote/webroot",
+        "localroot":  "/full/path/to/local/webroot"
+}
+
+</code>
