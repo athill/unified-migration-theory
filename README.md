@@ -6,6 +6,9 @@ Dependencies
 [Python](http://www.python.org/)
 [Paramiko](http://www.lag.net/paramiko/)
 
+
+Summary
+-------
 The basic idea is to define and execute a migration from one instance of a website to another. For example from your test server to your production server. The current version assumes using sftp, but copying locally would not be hard to add.
 
 So here's the deal:
