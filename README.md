@@ -51,8 +51,11 @@ and assuming
         "remoteroot": "/full/path/to/remote/webroot",
         "localroot":  "/full/path/to/local/webroot"
 }
+</pre>
+
 
 ### ~/sites/[site-id]/migrations/[migration-id]/def.txt
+
 <pre>
 A  file/to/add.ext
 D  file/to/delete.ext
