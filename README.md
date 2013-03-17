@@ -26,3 +26,15 @@ So here's the deal:
 				backup/: will be generated based on the files and directoies you want to delete or modify
 			...
 </pre>
+
+A lot of error checking needs to be added, but you basically call
+
+<code>
+python bin/migrate.py [site-id] [migration-id]
+</code>
+
+and assuming 
+
+* ~/sites/[site-id]/migrations/[migration-id] exists
+* as does ~/sites/[site-id]/properties.json
+* as does * ~/sites/[site-id]/migrations/[migration-id]/def.txt
