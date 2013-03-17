@@ -41,7 +41,7 @@ and assuming
 
 Here's a sample ~/sites/[site-id]/properties.json:
 
-<code>
+<pre>
 {
         "host": "example.com",
         "port": 22,
@@ -51,4 +51,4 @@ Here's a sample ~/sites/[site-id]/properties.json:
         "localroot":  "/full/path/to/local/webroot"
 }
 
-</code>
+</pre>
