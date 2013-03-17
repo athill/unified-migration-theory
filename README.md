@@ -61,5 +61,3 @@ A  file/to/add.ext
 D  file/to/delete.ext
 M  file/to/modify.ext
 </pre>
-
-
