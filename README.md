@@ -25,6 +25,7 @@ So here's the deal:
 					<code>git diff --name-status [commit]</code>, I'll get into that.
 				backup/: will be generated based on the files and directoies you want to delete or modify
 			...
+	...
 </pre>
 
 A lot of error checking needs to be added, but you basically call
@@ -42,10 +43,12 @@ and assuming
 
 ### ~/sites/[site-id]/properties.json:
 
+
+
 <pre>
 {
         "host": "example.com",
-        "port": 22,
+        "port": (optional, default: 22),
         "password": "password, if ommitted, you will be prompted (once I implement it). Looking into key-based auth",
         "username": "username, may integrate into host. e.g., username@example.com",
         "remoteroot": "/full/path/to/remote/webroot",
