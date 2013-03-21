@@ -1,21 +1,18 @@
 
 # usage: migrate [project] [migration]
 
-import sys
-import paramiko
-import os
-import json
-import errno
-import time
-from pprint import pprint
-import shutil 
+import sys, paramiko, os, json, errno, time, shutil, getpass
+from pprint import pprint 
 from datetime import datetime
-import getpass
-# pw = getpass.getpass()
-# print pw
-# exit(2)
+
+debug = True
+archive = False
 
 
+
+# ##########################
+# Helper functions
+# ##########################
 def mkdir_p(path):
     try:
         os.makedirs(path)
@@ -50,6 +47,10 @@ def rmkdir_p(sftp, root, path):
             if e.errno == errno.ENOENT:
                 sftp.mkdir(chkpath, 0755)
 
+
+# ##########################
+# Let's Rock!
+# ##########################
 paramiko.util.log_to_file('/tmp/paramiko.log')
 
 home = os.path.expanduser("~")
@@ -75,8 +76,14 @@ properties_file = os.path.join(approot, app, 'properties.json')
 print properties_file
 properties_json = open(properties_file)
 config = json.load(properties_json)
-# pprint(config)
+pprint(config)
 properties_json.close()
+
+if not 'password' in config.keys():
+    config['password'] = getpass.getpass()
+
+if not 'port' in config.keys():
+    config['port'] = 22
 
 
 
@@ -102,7 +109,7 @@ for line in lines:
 		migrations["add"].append(filen)
 	elif action == 'M':
 		migrations["modify"].append(filen)
-	else:
+	elif action == 'D':
 		migrations["delete"].append(filen)
 
 # # # # SFTP
@@ -123,11 +130,11 @@ for filen in migrations["delete"]+migrations["modify"]:
 	if rexists(sftp, rfile):
 		sftp.get(rfile, os.path.join(backup_dir, filen))
 
-# # # # Delete -- move after update?
+# # # # Delete 
 for filen in migrations["delete"]:
 	rfile = os.path.join(config["remoteroot"], filen)
 	if rexists(sftp, rfile):
-		sftp.get(rfile, os.path.join(backup_dir, filen))
+		sftp.remove(rfile)
 
 # # # # Update
 for filen in migrations["add"]+migrations["modify"]:
@@ -141,19 +148,19 @@ for filen in migrations["add"]+migrations["modify"]:
 sftp.close()
 transport.close()
 
-# # # Archive migration
-# http://docs.python.org/2/library/shutil.html#archiving-operations
-localtime   = time.localtime()
-timeString  = time.strftime("%Y%m%d", localtime)
-print timeString
-archive_name = timeString + '_' + migration
-root_dir = os.path.join(approot, app, 'migrations')
-base_dir = os.path.join(root_dir, migration)
-archive_dir = os.path.join(root_dir, str(datetime.now().year))
-if not os.path.exists(archive_dir):
-    os.makedirs(archive_dir)
-shutil.make_archive(os.path.join(archive_dir, archive_name), 'gztar', root_dir, base_dir)
-shutil.rmtree(base_dir)
+if archive: 
+    # # # Archive migration
+    # http://docs.python.org/2/library/shutil.html#archiving-operations
+    localtime   = time.localtime()
+    timeString  = time.strftime("%Y%m%d", localtime)
+    archive_name = timeString + '_' + migration
+    root_dir = os.path.join(approot, app, 'migrations')
+    base_dir = os.path.join(root_dir, migration)
+    archive_dir = os.path.join(root_dir, str(datetime.now().year))
+    if not os.path.exists(archive_dir):
+        os.makedirs(archive_dir)
+    shutil.make_archive(os.path.join(archive_dir, archive_name), 'gztar', root_dir, base_dir)
+    shutil.rmtree(base_dir)
 
 
 
