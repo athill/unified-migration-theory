@@ -20,7 +20,7 @@ So here's the deal:
 	- [site-id]: associates a local site with a remote site
 		- properties.json: configuration file
 		- migrations
-			[migration-id]:
+			[migration-id]
 				def.txt: Defines a migration. It's based on the output of 
 					<code>git diff --name-status [commit]</code>, I'll get into that.
 				backup/: will be generated based on the files and directoies you want to delete or modify

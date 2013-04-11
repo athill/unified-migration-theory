@@ -85,7 +85,7 @@ if not 'password' in config.keys():
 if not 'port' in config.keys():
     config['port'] = 22
 
-
+pprint(config)
 
 # # # Migration file
 migration_file = os.path.join(approot, app, 'migrations', migration, 'def.txt')
@@ -93,9 +93,9 @@ migration_file = os.path.join(approot, app, 'migrations', migration, 'def.txt')
 
 # # # Build Migration data structure
 migrations = {
-	"add": [],
-	"modify": [],
-	"delete": []
+	"A": [],   # add
+	"M": [],   # modify
+	"D": []    # delete
 }
 lines = [line.strip() for line in open(migration_file)]
 
@@ -105,12 +105,17 @@ for line in lines:
 	# print line
 	action = line[0]
 	filen = line[1:].strip()
-	if action == 'A':
-		migrations["add"].append(filen)
-	elif action == 'M':
-		migrations["modify"].append(filen)
-	elif action == 'D':
-		migrations["delete"].append(filen)
+    if action in migrations.keys():
+        migrations[action].append(filen)
+    else:
+        raise Exception("Unknown action: '%s'", % (action))
+
+	# if action == 'A':
+	# 	migrations["A"].append(filen)
+	# elif action == 'M':
+	# 	migrations["M"].append(filen)
+	# elif action == 'D':
+	# 	migrations["D"].append(filen)
 
 # # # # SFTP
 # # Open a transport
@@ -122,7 +127,7 @@ sftp = paramiko.SFTPClient.from_transport(transport)
 
 # # # # Backup
 backup_dir =  os.path.join(approot, app, 'migrations', migration, 'backup')
-for filen in migrations["delete"]+migrations["modify"]:
+for filen in migrations["D"]+migrations["M"]:
 	d = os.path.join(backup_dir, os.path.dirname(filen))
 	print d
 	mkdir_p(d)
@@ -130,14 +135,14 @@ for filen in migrations["delete"]+migrations["modify"]:
 	if rexists(sftp, rfile):
 		sftp.get(rfile, os.path.join(backup_dir, filen))
 
-# # # # Delete 
-for filen in migrations["delete"]:
+# # # # Delete
+for filen in migrations["D"]:
 	rfile = os.path.join(config["remoteroot"], filen)
 	if rexists(sftp, rfile):
 		sftp.remove(rfile)
 
-# # # # Update
-for filen in migrations["add"]+migrations["modify"]:
+# # # # Add/Modify
+for filen in migrations["A"]+migrations["M"]:
     rdir = os.path.join(config["remoteroot"], os.path.dirname(filen))
     if not rexists(sftp, rdir):
         rmkdir_p(sftp, config["remoteroot"], os.path.dirname(filen))
