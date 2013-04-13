@@ -1,11 +1,10 @@
 
 # usage: migrate [project] [migration]
 
-import sys, paramiko, os, json, errno, time, shutil, getpass
+import argparse, sys, paramiko, os, json, errno, time, shutil, getpass
 from pprint import pprint 
 from datetime import datetime
 
-debug = True
 archive = False
 
 
@@ -38,9 +37,12 @@ def rexists(sftp, path):
 def rmkdir_p(sftp, root, path):
     chkpath = root
     path_array = path.split(os.sep)
-    pprint(path_array)
+    if debug:
+        pprint(path_array)
     for part in path_array:
         chkpath = os.path.join(chkpath, part)
+        # create directory if it doesn't exist
+        # somewhat convoluted. directory creation is in the except clause
         try:
             sftp.stat(path)
         except IOError, e:
@@ -61,22 +63,36 @@ approot = os.path.join(home, 'sites');
 # # # Handle command line args
 # http://www.diveintopython.net/scripts_and_streams/command_line_arguments.html
 # for arg in sys.argv:
-    # print arg
-if len(sys.argv) < 3:
-	print "Usage: migrate [app] [migration]"
-	exit(2)
+parser = argparse.ArgumentParser()
+parser.add_argument('app', help='folder under ~/sites/')
+parser.add_argument('migration', help='folder under ~/sites/[app]/ containing migration directives')
+parser.add_argument('--debug', default=False, help='Show debug information')
+args = parser.parse_args()
 
-app = sys.argv[1]
-migration = sys.argv[2]
+app = args.app
+migration = args.migration
+debug = args.debug
+
+
+
+    # print arg
+# if len(sys.argv) < 3:
+#     print "Usage: migrate [app] [migration]"
+#     exit(2)
+
+# app = sys.argv[1]
+# migration = sys.argv[2]
 # print app + ' ' + migration
 
 
 # # # Load config
 properties_file = os.path.join(approot, app, 'properties.json')
-print properties_file
+if debug:
+    print properties_file
 properties_json = open(properties_file)
 config = json.load(properties_json)
-pprint(config)
+if debug:
+    pprint(config)
 properties_json.close()
 
 if not 'password' in config.keys():
@@ -85,7 +101,8 @@ if not 'password' in config.keys():
 if not 'port' in config.keys():
     config['port'] = 22
 
-pprint(config)
+if debug:
+    pprint(config)    
 
 # # # Migration file
 migration_file = os.path.join(approot, app, 'migrations', migration, 'def.txt')
@@ -93,29 +110,25 @@ migration_file = os.path.join(approot, app, 'migrations', migration, 'def.txt')
 
 # # # Build Migration data structure
 migrations = {
-	"A": [],   # add
-	"M": [],   # modify
-	"D": []    # delete
+    "A": [],   # add
+    "M": [],   # modify
+    "D": []    # delete
 }
 lines = [line.strip() for line in open(migration_file)]
 
 for line in lines:
-	if line == '':
-		 continue
-	# print line
-	action = line[0]
-	filen = line[1:].strip()
+    if line == '':
+         continue
+    # print line
+    action = line[0]
+    filen = line[1:].strip()
+
     if action in migrations.keys():
         migrations[action].append(filen)
     else:
-        raise Exception("Unknown action: '%s'", % (action))
+        raise Exception("Unknown action: '%s'" % (action))
 
-	# if action == 'A':
-	# 	migrations["A"].append(filen)
-	# elif action == 'M':
-	# 	migrations["M"].append(filen)
-	# elif action == 'D':
-	# 	migrations["D"].append(filen)
+
 
 # # # # SFTP
 # # Open a transport
@@ -128,25 +141,27 @@ sftp = paramiko.SFTPClient.from_transport(transport)
 # # # # Backup
 backup_dir =  os.path.join(approot, app, 'migrations', migration, 'backup')
 for filen in migrations["D"]+migrations["M"]:
-	d = os.path.join(backup_dir, os.path.dirname(filen))
-	print d
-	mkdir_p(d)
-	rfile = os.path.join(config["remoteroot"], filen)
-	if rexists(sftp, rfile):
-		sftp.get(rfile, os.path.join(backup_dir, filen))
+    d = os.path.join(backup_dir, os.path.dirname(filen))
+    if debug:
+        print d
+    mkdir_p(d)
+    rfile = os.path.join(config["remoteroot"], filen)
+    if rexists(sftp, rfile):
+        sftp.get(rfile, os.path.join(backup_dir, filen))
 
 # # # # Delete
 for filen in migrations["D"]:
-	rfile = os.path.join(config["remoteroot"], filen)
-	if rexists(sftp, rfile):
-		sftp.remove(rfile)
+    rfile = os.path.join(config["remoteroot"], filen)
+    if rexists(sftp, rfile):
+        sftp.remove(rfile)
 
 # # # # Add/Modify
 for filen in migrations["A"]+migrations["M"]:
     rdir = os.path.join(config["remoteroot"], os.path.dirname(filen))
     if not rexists(sftp, rdir):
         rmkdir_p(sftp, config["remoteroot"], os.path.dirname(filen))
-    print filen
+    if debug:
+        print filen
     sftp.put(os.path.join(config["localroot"], filen), os.path.join(config["remoteroot"], filen))
 
 # # # Close
