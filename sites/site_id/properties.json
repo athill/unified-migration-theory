@@ -1,4 +1,5 @@
 {
+	"type": "local"
 	"host": "example.com",
 	"port": 22,
 	"password": "password, if ommitted, you will be prompted. Looking into key-based auth",
