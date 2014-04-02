@@ -3,7 +3,9 @@ unified-migration-theory
 
 Status
 ------
-Ran into issues with this and postponed it, but am working on it. Long way to go. I've created [DirStructures](https://github.com/athill/DirFixtures) to aid in testing and it seems to actually work. The next step is Migrater, which adds, copies, deletes the files, abstracting out the differences of whether the target is accessed locally or via ftp, sftp, etc. 
+Ran into issues with this and postponed it, but am working on it. Long way to go. I've created [DirStructures](https://github.com/athill/DirFixtures) to aid in testing and it seems to actually work. The next step is [Migrater](https://github.com/athill/unified-migration-theory/blob/migrater/README.migrater.md), which will add/copy/delete the files, abstracting out the differences of whether the target is accessed locally or via ftp, sftp, etc. I'll publish that as soon as local migrations are working, at the very least (I think I'm close).
+
+UMT is meant to be an abstration over Migrater. I may rethink the command line interface and required directory structure below. Hopefully get Migrater posted soon, as it's the real engine.
 
 Dependencies
 ------------
