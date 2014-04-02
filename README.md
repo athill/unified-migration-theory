@@ -1,6 +1,10 @@
 unified-migration-theory
 ========================
 
+Status
+------
+Ran into issues with this and postponed it, but am working on it. Long way to go. I've created [DirStructures](https://github.com/athill/DirFixtures) to aid in testing and it seems to actually work. The next step is Migrater, which adds, copies, deletes the files, abstracting out the differences of whether the target is accessed locally or via ftp, sftp, etc. 
+
 Dependencies
 ------------
 [Python](http://www.python.org/)
@@ -29,28 +33,24 @@ So you set up your properties and your includes, run the ant script and boom: re
 that takes a migration definition based on 
 The basic idea is to define and execute a migration from one instance of a website to another. For example from your test server to your production server. The current version assumes using sftp, but copying locally would not be hard to add.
 
-So here's the deal:
+	So here's the deal:
 
-<pre>
-- bin
-	- migrate.py: does the work
-- sites
-	- [site-id]: associates a local site with a remote site
-		- properties.json: configuration file
-		- migrations
-			[migration-id]
-				def.txt: Defines a migration. It's based on the output of 
-					<code>git diff --name-status [commit]</code>, I'll get into that.
-				backup/: will be generated based on the files and directoies you want to delete or modify
-			...
-	...
-</pre>
+	- bin
+		- migrate.py: does the work
+	- sites
+		- [site-id]: associates a local site with a remote site
+			- properties.json: configuration file
+			- migrations
+				[migration-id]
+					def.txt: Defines a migration. It's based on the output of 
+						<code>git diff --name-status [commit]</code>, I'll get into that.
+					backup/: will be generated based on the files and directoies you want to delete or modify
+				...
+		...
 
 A lot of error checking needs to be added, but you basically call
 
-<code>
-python bin/migrate.py [site-id] [migration-id]
-</code>
+	python bin/migrate.py [site-id] [migration-id]
 
 and assuming 
 
@@ -61,24 +61,26 @@ and assuming
 
 ### ~/sites/[site-id]/properties.json:
 
-
-
-<pre>
-{
-        "host": "example.com",
-        "port": (optional, default: 22),
-        "password": "password, if ommitted, you will be prompted (once I implement it). Looking into key-based auth",
-        "username": "username, may integrate into host. e.g., username@example.com",
-        "remoteroot": "/full/path/to/remote/webroot",
-        "localroot":  "/full/path/to/local/webroot"
-}
-</pre>
+	{
+	        "host": "example.com",
+	        "port": (optional, default: 22),
+	        "password": "password, if ommitted, you will be prompted (once I implement it). Looking into key-based auth",
+	        "username": "username, may integrate into host. e.g., username@example.com",
+	        "remoteroot": "/full/path/to/remote/webroot",
+	        "localroot":  "/full/path/to/local/webroot"
+	}
 
 
 ### ~/sites/[site-id]/migrations/[migration-id]/def.txt
 
-<pre>
-A  file/to/add.ext
-D  file/to/delete.ext
-M  file/to/modify.ext
-</pre>
+	A  file/to/add.ext
+	D  file/to/delete.ext
+	M  file/to/modify.ext
+	...
+
+This can be achieved in Git, for example, by 
+
+	git diff --name-status HEAD^ HEAD
+
+To retreive the list of changes (input for def.txt) in the correct format. `--name-status` provides the accepted format, `HEAD^` pulls all changes in the last commit. See [git-diff(1)](https://www.kernel.org/pub/software/scm/git/docs/git-diff.html)
+
